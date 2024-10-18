@@ -1,0 +1,252 @@
+openapi: 3.0.1
+info:
+  title: Glossary-explorer
+  description: A python based microservice to create/search glossaries.
+  contact:
+    name: Abhishek Suga
+    email: abhishek.suga@tarento.com
+  version: 1.0.0
+servers:
+- url: /glossary-explorer
+paths:
+  /v1/signup:
+    post:
+      tags:
+      - Signup
+      summary: REST API for signup.
+      description: This API accepts user details.
+      requestBody:
+        description: Request format accepted by this API.
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/signupRequest'
+        required: true
+      responses:
+        202:
+          description: On successful signup.
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/signupResponse'
+      x-codegen-request-body-name: request
+
+
+
+
+  /v1/login:
+    post:
+      tags:
+      - Login
+      summary: REST API for login.
+      description: This API accepts login credentials.
+      requestBody:
+        description: Request format accepted by this API.
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/loginRequest'
+        required: true
+      responses:
+        202:
+          description: On successful login.
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/loginResponse'
+      x-codegen-request-body-name: request
+
+
+  /v1/glossary/create:
+    post:
+      tags:
+      - Create
+      summary: REST API to create glossaries.
+      description: This API accepts list of JSON objects.
+      requestBody:
+        description: Request format accepted by this API.
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/createRequest'
+        required: true
+      responses:
+        202:
+          description: On successful Upload of glossaries created.
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/createResponse'
+      x-codegen-request-body-name: request
+  /v1/glossary/file/upload:
+    post:
+      tags:
+      - Upload
+      summary: REST API to upload Glossary files.
+      description: This API accepts glossary file of xls/xlsx/csv/tsv format.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+              - glossaryFile
+              properties:
+                glossaryFile:
+                  type: array
+                  description: Request format accepted by this API.
+                  format: binary
+        required: true
+      responses:
+        200:
+          description: On successful uplaod of glossary file.
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/createResponse'
+  /v1/sentence/phrases/search:
+    post:
+      tags:
+      - Search
+      summary: REST API to retrive all the possible glossaries from the ES store.
+      description: This API accepts List of input sentences/phrases to give all the
+        available glossaries in response .
+      requestBody:
+        description: Request format accepted by this API.
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/searchRequest'
+        required: true
+      responses:
+        200:
+          description: Either an empty or a non-empty array of glossary JSONs.
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/searchResponse'
+                
+      x-codegen-request-body-name: request
+components:
+  schemas:
+    signupRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password: 
+          type: string
+      
+    signupResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        status: 
+          type: string  
+  
+  
+  
+
+    loginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password: 
+          type: string
+      
+    loginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user: 
+          type: object
+          description: user details.
+          items:
+            $ref: '#/components/schemas/userDetails'
+
+
+
+
+  
+    createRequest:
+      type: object
+      properties:
+        glossary:
+          type: array
+          items:
+            $ref: '#/components/schemas/glossaryCreate'
+    glossaryCreate:
+      type: object
+      properties:
+        srcLanguage:
+          type: string
+        tgtLanguage:
+          type: string
+        srcText:
+          type: string
+        tgtText:
+          type: string
+        domain:
+          type: string
+        collectionSource:
+          type: string
+        level:
+          type: string
+    createResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: On successful creation of glossary.
+        status:
+          type: string
+          description: On successful creation of glossary.
+    searchRequest:
+      type: object
+      properties:
+        inputs:
+          type: array
+          description: File to be uploaded.
+          items:
+            type: string
+    searchResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          glossaryPhrases:
+            type: array
+            description: list of glossaries available.
+            items:
+              $ref: '#/components/schemas/glossaryList'
+          input:
+            type: string
+    glossaryList:
+      type: object
+      properties:
+        collectionSource:
+          type: string
+        domain:
+          type: string
+        level:
+          type: string
+        srcLang:
+          type: string
+        srcText:
+          type: string
+        tgtLanguage:
+          type: string
+        tgtText:
+          type: string
+          
+    userDetails:
+        type: object
+        properties:
+          email:
+            type: string
+          userId:
+            type: string
+          username:
+            type: string
